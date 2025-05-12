@@ -1,14 +1,21 @@
 from notion_client import Client
 import os
 import datetime
+import pytz
 
 NOTION_TOKEN = os.environ["NOTION_TOKEN"]
-PAGE_ID = "1ec13521389b80a293e0ca47d925c699"  # 替換為你的 Notion 頁面 ID
+PAGE_ID = "1ec13521389b80a293e0ca47d925c699"
 
 notion = Client(auth=NOTION_TOKEN)
 
-# 自動執行：啟動main.py時就執行
+# 取得台灣時間（UTC+8），格式：不含秒
+taiwan_tz = pytz.timezone("Asia/Taipei")
+now = datetime.datetime.now(taiwan_tz)
+new_text = f"最後更新時間：{now.strftime('%Y-%m-%d %H:%M')}"
+
+# 抓取頁面區塊
 blocks = notion.blocks.children.list(block_id=PAGE_ID)["results"]
+
 for block in blocks:
     if block["type"] == "paragraph":
         rich_text = block["paragraph"].get("rich_text", [])
@@ -16,23 +23,19 @@ for block in blocks:
             continue
 
         first_text = rich_text[0]
-        plain = first_text.get("plain_text", "")
-        if "更新時間" in plain:
-
-            # 取得字體樣式與區塊底色
+        if "更新時間" in first_text.get("plain_text", ""):
+            # 保留樣式（字體樣式 + 區塊底色）
             annotations = first_text.get("annotations", {})
             block_color = block["paragraph"].get("color", "default")
 
-            # 建立新的 rich_text，套用原本的格式
             updated_rich_text = [{
                 "type": "text",
                 "text": {
-                    "content": f"最後更新時間：{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+                    "content": new_text
                 },
                 "annotations": annotations
             }]
 
-            # 執行更新
             notion.blocks.update(
                 block_id=block["id"],
                 paragraph={

@@ -1,5 +1,7 @@
-from notion_client import Client
-import os
+import os                          # 為了讀環境變數 NOTION_TOKEN
+import datetime                   # 為了格式化現在時間用在「更新時間」區塊
+from notion_client import Client  # 使用 Notion API SDK
+import update_timestamp           # 呼叫時間更新的程式
 
 # 初始化 Notion 客戶端
 NOTION_TOKEN = os.environ["NOTION_TOKEN"]

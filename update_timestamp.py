@@ -19,7 +19,7 @@ def update_time_block():
                         "rich_text": [{
                             "type": "text",
                             "text": {
-                                "content": f"更新時間：{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+                                "content": f"最後更新時間：{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
                             }
                         }]
                     }

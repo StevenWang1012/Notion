@@ -1,16 +1,12 @@
-import os                          # 為了讀環境變數 NOTION_TOKEN
-import datetime                   # 為了格式化現在時間用在「更新時間」區塊
+from config import NOTION_TOKEN, DATABASE_ID_MEETING_1 #使用config.py的資料
 from notion_client import Client  # 使用 Notion API SDK
 import update_timestamp           # 呼叫時間更新的程式
 
-# 初始化 Notion 客戶端
-NOTION_TOKEN = os.environ["NOTION_TOKEN"]
-DATABASE_ID = "1ec13521-389b-8012-8793-ee9224e643aa"
 notion = Client(auth=NOTION_TOKEN)
 
 # 執行邏輯
 def process_all_pages():
-    response = notion.databases.query(database_id=DATABASE_ID)
+    response = notion.databases.query(database_id=DATABASE_ID_MEETING_1)
     for page in response["results"]:
         props = page["properties"]
         title_raw = props.get("Name", {}).get("title", [])

@@ -1,10 +1,7 @@
+from config import NOTION_TOKEN, PAGE_ID_MEETING_1
 from notion_client import Client
-import os
 import datetime
 import pytz
-
-NOTION_TOKEN = os.environ["NOTION_TOKEN"]
-PAGE_ID = "1ec13521389b80a293e0ca47d925c699"
 
 notion = Client(auth=NOTION_TOKEN)
 
@@ -14,7 +11,7 @@ now = datetime.datetime.now(taiwan_tz)
 new_text = f"最後更新時間：{now.strftime('%Y-%m-%d %H:%M')}"
 
 # 抓取頁面區塊
-blocks = notion.blocks.children.list(block_id=PAGE_ID)["results"]
+blocks = notion.blocks.children.list(block_id=PAGE_ID_MEETING_1)["results"]
 
 for block in blocks:
     if block["type"] == "paragraph":

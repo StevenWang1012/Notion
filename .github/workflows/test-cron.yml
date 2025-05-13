@@ -14,9 +14,9 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Show current time
-        run: echo "🕒 Cron job triggered at $(date -u)"
+        run: |
+          echo "🕒 Cron job triggered at $(date -u)"
 
       - name: Log environment
-        run: echo "Runner OS: $(uname -a)"
-
-# force update cron registration
+        run: |
+          echo "Runner OS: $(uname -a)"

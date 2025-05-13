@@ -1,0 +1,19 @@
+name: Test Cron Trigger
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"  # 每 5 分鐘執行一次
+  workflow_dispatch:       # 可手動觸發
+
+jobs:
+  test-cron:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Show current time
+        run: echo "🕒 Cron job triggered at $(date -u)"
+
+# force update cron registration

@@ -1,8 +1,8 @@
 name: Test Cron Trigger
-
+#已停用此排程
 on:
-  schedule:
-    - cron: "*/5 * * * *"  # 每 5 分鐘執行一次
+  #schedule:
+  #  - cron: "*/5 * * * *"  # 每 5 分鐘執行一次
   workflow_dispatch:       # 可手動觸發
 
 jobs:

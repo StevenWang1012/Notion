@@ -5,28 +5,28 @@ on:
     - cron: "0 19 * * *"  # 台灣時間凌晨 03:00
   workflow_dispatch:     # 允許手動觸發
 
+# 加入全域環境變數，強制讓 GitHub Actions 使用 Node.js 24 執行環境
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   run-script:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
-        # 升級到 v4 以解決 Node.js 20 棄用警告
         uses: actions/checkout@v4
 
       - name: Set up Python
-        # 升級到 v5 以解決 Node.js 20 棄用警告
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          # 如果你的 requirements.txt 已經 Push 到 Repository 根目錄，這裡可以開啟快取
           cache: 'pip' 
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          # 使用你選取的 requirements.txt 進行安裝
-          pip install -r requirements.txt
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; else pip install notion-client pytz; fi
 
       - name: Run main.py
         run: python main.py

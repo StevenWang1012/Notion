@@ -2,7 +2,7 @@ name: Run Notion Auto Progress
 
 on:
   schedule:
-    - cron: "0 19 * * *"  # 每天台灣時間早上 3 點執行
+    - cron: "0 19 * * *"  # 台灣時間凌晨 03:00
   workflow_dispatch:     # 允許手動觸發
 
 jobs:
@@ -17,12 +17,12 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
+          cache: 'pip' # 開啟快取加速
 
-      - name: Install Notion SDK
-        run: pip install notion-client
-
-      - name: Install pytz  # ⬅️ 加這一段即可解決問題
-        run: pip install pytz
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
       - name: Run main.py
         run: python main.py
@@ -30,5 +30,3 @@ jobs:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
           PAGEID_MEETING_1: ${{ secrets.PAGEID_MEETING_1 }}
           DBID_MEETING_1: ${{ secrets.DBID_MEETING_1 }}
-
-#force update cron registration 

@@ -1,47 +1,49 @@
-from config import NOTION_TOKEN, DATABASE_ID_MEETING_1 #使用config.py的資料
-from notion_client import Client  # 使用 Notion API SDK
-import update_timestamp           # 呼叫時間更新的程式
+from config import NOTION_TOKEN, PAGE_ID_MEETING_1
+from notion_client import Client
+import datetime
+import pytz
 
-notion = Client(auth=NOTION_TOKEN)
+def run_update():
+    notion = Client(auth=NOTION_TOKEN)
 
-# 執行邏輯
-def process_all_pages():
-    response = notion.databases.query(database_id=DATABASE_ID_MEETING_1)
-    for page in response["results"]:
-        props = page["properties"]
-        title_raw = props.get("Name", {}).get("title", [])
-        title = title_raw[0]["plain_text"] if title_raw else "（無標題）"
+    # 取得台灣時間（UTC+8）
+    taiwan_tz = pytz.timezone("Asia/Taipei")
+    now = datetime.datetime.now(taiwan_tz)
+    new_text = f"最後更新時間：{now.strftime('%Y-%m-%d %H:%M')}"
 
-        # 統計 Checkbox
-        plain_text = ""
-        for block in notion.blocks.children.list(page["id"])["results"]:
-            if block["type"] == "to_do":
-                emoji = "✅" if block["to_do"]["checked"] else "⬜️"
-                plain_text += emoji
+    try:
+        # 抓取頁面區塊
+        blocks = notion.blocks.children.list(block_id=PAGE_ID_MEETING_1)["results"]
 
-        total = plain_text.count("✅") + plain_text.count("⬜️")
-        done = plain_text.count("✅")
+        for block in blocks:
+            if block["type"] == "paragraph":
+                rich_text = block["paragraph"].get("rich_text", [])
+                if not rich_text:
+                    continue
 
-        if total == 0:
-            progress_text = ""
-        elif done == total:
-            progress_text = "✅"
-        else:
-            progress_text = f"進度 {done}/{total}"
+                first_text = rich_text[0]
+                if "更新時間" in first_text.get("plain_text", ""):
+                    # 保留樣式
+                    annotations = first_text.get("annotations", {})
+                    block_color = block["paragraph"].get("color", "default")
 
-        # 更新頁面屬性
-        notion.pages.update(page_id=page["id"],
-                            properties={
-                                "進度": {
-                                    "rich_text": [{
-                                        "text": {
-                                            "content": progress_text
-                                        }
-                                    }]
-                                }
-                            })
-        print(f"✅ {title} → {progress_text}")
+                    updated_rich_text = [{
+                        "type": "text",
+                        "text": {"content": new_text},
+                        "annotations": annotations
+                    }]
 
-# GitHub Actions 自動執行點
+                    notion.blocks.update(
+                        block_id=block["id"],
+                        paragraph={
+                            "rich_text": updated_rich_text,
+                            "color": block_color
+                        }
+                    )
+                    print(f"🕒 {new_text} - 已同步至 Notion")
+                    return
+    except Exception as e:
+        print(f"❌ 更新時間段落失敗: {e}")
+
 if __name__ == "__main__":
-    process_all_pages()
+    run_update()

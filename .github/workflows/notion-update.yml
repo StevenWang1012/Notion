@@ -11,17 +11,21 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        # 升級到 v4 以解決 Node.js 20 棄用警告
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        # 升級到 v5 以解決 Node.js 20 棄用警告
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          cache: 'pip' # 開啟快取加速
+          # 如果你的 requirements.txt 已經 Push 到 Repository 根目錄，這裡可以開啟快取
+          cache: 'pip' 
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
+          # 使用你選取的 requirements.txt 進行安裝
           pip install -r requirements.txt
 
       - name: Run main.py
